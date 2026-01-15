@@ -340,9 +340,51 @@ void Command_TravelTo(SPAWNINFO* pSpawn, char* szLine)
 	ZonePath_SetActive(request, true);
 }
 
+class EasyFindType : public MQ2Type
+{
+public:
+	enum Members {
+		Active
+	};
+
+	EasyFindType() : MQ2Type("EasyFind")
+	{
+		TypeMember(Active);
+	}
+
+	virtual bool GetMember(MQVarPtr VarPtr, const char* Member, char* Index, MQTypeVar& Dest) override
+	{
+		MQTypeMember* pMember = FindMember(Member);
+		if (!pMember)
+			return false;
+
+		switch (static_cast<Members>(pMember->ID))
+		{
+		case Active:
+			Dest.Set(ZonePath_IsActive());
+			Dest.Type = mq::datatypes::pBoolType;
+			return true;
+
+		default:
+			break;
+		}
+
+		return false;
+	}
+
+	static bool data(const char*, MQTypeVar& Dest);
+};
+EasyFindType* pEasyFindType = nullptr;
+
+bool EasyFindType::data(const char*, MQTypeVar& Dest)
+{
+	Dest.Type = pEasyFindType;
+	return true;
+}
+
 PLUGIN_API void InitializePlugin()
 {
-	WriteChatf(PLUGIN_MSG "v%s \arBETA\ax by brainiac (\aohttps://github.com/brainiac/MQ2EasyFind\ax)", EASYFIND_PLUGIN_VERSION);
+	WriteChatf(PLUGIN_MSG "v%s by brainiac (\aohttps://github.com/brainiac/MQ2EasyFind\ax)", EASYFIND_PLUGIN_VERSION);
 	WriteChatf(PLUGIN_MSG "Type \ag/easyfind help\ax for more info.");
 
 	g_configuration = new EasyFindConfiguration();
@@ -355,6 +397,9 @@ PLUGIN_API void InitializePlugin()
 	Navigation_Initialize();
 	Lua_Initialize();
 	FindWindow_Initialize();
+
+	pEasyFindType = new EasyFindType;
+	AddTopLevelObject("EasyFind", EasyFindType::data);
 
 	AddCommand("/easyfind", Command_EasyFind, false, true, true);
 	AddCommand("/travelto", Command_TravelTo, false, true, true);
@@ -374,6 +419,9 @@ PLUGIN_API void ShutdownPlugin()
 
 	delete g_configuration;
 	delete g_zoneConnections;
+
+	delete pEasyFindType;
+	RemoveTopLevelObject("EasyFind");
 }
 
 PLUGIN_API void OnCleanUI()
