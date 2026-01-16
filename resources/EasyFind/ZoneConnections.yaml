@@ -2053,6 +2053,10 @@ FindLocations:
             location: [0.33, 22.77, 2.40]
             switch: 1
             targetZone: sunderock
+    vortex:
+        -   type: ZoneConnection
+            location: [-4, -10, 0]
+            targetZone: ruinedrelic
     wallofslaughter:
         -   type: ZoneConnection
             location: [1979.28, -1702.54, 111.67]
