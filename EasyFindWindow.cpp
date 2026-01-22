@@ -385,7 +385,7 @@ void CFindLocationWndOverride::RemoveCustomLocations()
 				{
 					// Remove the element from the zone connection list and fix up any other
 					// refs that tried to index anything after it.
-					auto& refData = refIter->second;
+					auto& refData = refIter->value();
 
 					unfilteredZoneConnectionList.DeleteElement(refData.index);
 					if (refData.type == FindLocation_Location || refData.type == FindLocation_Switch)
@@ -393,10 +393,10 @@ void CFindLocationWndOverride::RemoveCustomLocations()
 						// Remove it from the list and decrement any indices that occur after it.
 						for (auto& entry : referenceList)
 						{
-							if (entry.second.index > refData.index
-								&& (entry.second.type == FindLocation_Location || entry.second.type == FindLocation_Switch))
+							if (entry.value().index > refData.index
+								&& (entry.value().type == FindLocation_Location || entry.value().type == FindLocation_Switch))
 							{
-								--entry.second.index;
+								--entry.value().index;
 							}
 						}
 					}
@@ -412,7 +412,7 @@ void CFindLocationWndOverride::RemoveCustomLocations()
 				auto refIter = referenceList.find(refId);
 				if (refIter != referenceList.end())
 				{
-					auto& refData = refIter->second;
+					auto& refData = refIter->value();
 
 					if (refData.type == FindLocation_Location || refData.type == FindLocation_Switch)
 					{
